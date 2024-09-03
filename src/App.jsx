@@ -3,13 +3,13 @@ import './App.css';
 import {
   Button, TextField, AppBar, Toolbar, IconButton, Typography, Grid,
   Card, CardContent, CardMedia, Box, Menu, MenuItem, Drawer, List, ListItem,
-  ListItemIcon, ListItemText, Rating
+  ListItemIcon, ListItemText, Rating, Container, useMediaQuery
 } from '@mui/material';
 import {
   Menu as MenuIcon, AccountCircle, Home as HomeIcon, Work as WorkIcon,
   Person as PersonIcon, Settings as SettingsIcon, Star as StarIcon
 } from '@mui/icons-material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
 import tovaLogo from './assets/tova-logo.png';
 import lalivesLogo from './assets/lalives-logo.png';
 import foundersIcon from './assets/founders.png';
@@ -90,6 +90,10 @@ function App() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+
   const handleSearchChange = (event) => setSearchTerm(event.target.value);
   const handleWhoChange = (event) => setWho(event.target.value);
   const handleWhatChange = (event) => setWhat(event.target.value);
@@ -113,12 +117,14 @@ function App() {
     <ThemeProvider theme={theme}>
       <Box sx={{ backgroundColor: 'background.default', minHeight: '100vh', width: '100vw' }}>
         <AppBar position="relative" color="transparent" elevation={0}>
-          <Toolbar sx={{ backgroundColor: 'white' }}>
+          <Toolbar sx={{ backgroundColor: 'white', flexWrap: 'wrap' }}>
             <Box component="img" src={tovaLogo} alt="Tova AI" sx={{ height: 40, mr: 2 }} />
             <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold', color: 'primary.main' }}>
               Tova AI
             </Typography>
-            <Box component="img" src={lalivesLogo} alt="LA Lives" sx={{ height: 40, mr: 2 }} />
+            {!isMobile && (
+              <Box component="img" src={lalivesLogo} alt="LA Lives" sx={{ height: 40, mr: 2 }} />
+            )}
             <Box className="user-menu">
               <IconButton color="primary" onClick={handleMenuOpen}>
                 <AccountCircle />
@@ -164,86 +170,88 @@ function App() {
             </List>
           </Box>
         </Drawer>
-        <Box sx={{ width: '100%', mt: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-            {['work', 'personal'].map((section) => (
-              <Button 
-                key={section}
-                variant={activeSection === section ? 'contained' : 'outlined'} 
-                color="primary" 
-                onClick={() => handleSectionChange(section)}
-                sx={{ mr: section === 'work' ? 2 : 0, fontSize: '1.2rem', padding: '10px 30px' }}
-              >
-                {section.charAt(0).toUpperCase() + section.slice(1)}
-              </Button>
-            ))}
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-            {activeSection === 'work' ? (
-              <>
-                <TextField
-                  label="Search by name"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  variant="outlined"
-                  sx={{ mr: 2, width: '300px' }}
-                />
-                <Button variant="contained" color="primary">Search</Button>
-              </>
-            ) : (
-              <>
-                {['Who', 'What', 'Where'].map((field) => (
+        <Container maxWidth="lg">
+          <Box sx={{ width: '100%', mt: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4, flexWrap: 'wrap' }}>
+              {['work', 'personal'].map((section) => (
+                <Button 
+                  key={section}
+                  variant={activeSection === section ? 'contained' : 'outlined'} 
+                  color="primary" 
+                  onClick={() => handleSectionChange(section)}
+                  sx={{ mr: section === 'work' ? { xs: 0, sm: 2 } : 0, mb: { xs: 1, sm: 0 }, fontSize: '1.2rem', padding: '10px 30px', width: { xs: '100%', sm: 'auto' } }}
+                >
+                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                </Button>
+              ))}
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4, flexWrap: 'wrap' }}>
+              {activeSection === 'work' ? (
+                <>
                   <TextField
-                    key={field}
-                    label={field}
-                    value={field === 'Who' ? who : field === 'What' ? what : where}
-                    onChange={field === 'Who' ? handleWhoChange : field === 'What' ? handleWhatChange : handleWhereChange}
+                    label="Search by name"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                     variant="outlined"
-                    sx={{ mr: 2, width: '200px' }}
+                    sx={{ mr: { xs: 0, sm: 2 }, mb: { xs: 2, sm: 0 }, width: { xs: '100%', sm: '300px' } }}
                   />
-                ))}
-                <Button variant="contained" color="primary">Search</Button>
-              </>
-            )}
-          </Box>
-          <Box component="main" sx={{display: 'flex'}}>
-            <Box className="work-section" sx={{ width: '100%', px: 2 }}>
-              <Grid container spacing={4} sx={{ mb: 6, justifyContent: 'center' }}>
-                {categories.map((category, index) => (
-                  <Grid item xs={6} sm={3} md={1.5} key={index}>
-                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                      <CardMedia component="img" alt={category.name} image={category.icon} sx={{ width: 40, height: 40, mb: 1 }} />
-                      <CardContent sx={{ p: 0 }}>
-                        <Typography variant="caption" color="text.secondary" component="p" align="center">{category.name}</Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-              <Grid container spacing={1}>
-                {profiles.map((profile, index) => (
-                  <Grid item xs={12} sm={6} md={3} key={index}>
-                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
-                      <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', alignItems: 'center' }}>
-                        <StarIcon color="primary" />
-                        <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>{profile.rating.toFixed(1)}</Typography>
-                      </Box>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>{profile.name}</Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{profile.location}</Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{profile.description}</Typography>
-                        <Typography variant="body2" color="text.secondary">Rate: ${profile.rate}/hr</Typography>
-                      </CardContent>
-                      <Box sx={{ p: 2 }}>
-                        <Button variant="outlined" color="primary" fullWidth>View Profile</Button>
-                      </Box>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
+                  <Button variant="contained" color="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>Search</Button>
+                </>
+              ) : (
+                <>
+                  {['Who', 'What', 'Where'].map((field) => (
+                    <TextField
+                      key={field}
+                      label={field}
+                      value={field === 'Who' ? who : field === 'What' ? what : where}
+                      onChange={field === 'Who' ? handleWhoChange : field === 'What' ? handleWhatChange : handleWhereChange}
+                      variant="outlined"
+                      sx={{ mr: { xs: 0, sm: 2 }, mb: { xs: 2, sm: 0 }, width: { xs: '100%', sm: '200px' } }}
+                    />
+                  ))}
+                  <Button variant="contained" color="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>Search</Button>
+                </>
+              )}
+            </Box>
+            <Box component="main" sx={{display: 'flex'}}>
+              <Box className="work-section" sx={{ width: '100%', px: 2 }}>
+                <Grid container spacing={2} sx={{ mb: 6, justifyContent: 'center' }}>
+                  {categories.map((category, index) => (
+                    <Grid item xs={6} sm={3} md={1.5} key={index}>
+                      <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                        <CardMedia component="img" alt={category.name} image={category.icon} sx={{ width: 40, height: 40, mb: 1 }} />
+                        <CardContent sx={{ p: 0 }}>
+                          <Typography variant="caption" color="text.secondary" component="p" align="center">{category.name}</Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+                <Grid container spacing={2}>
+                  {profiles.map((profile, index) => (
+                    <Grid item xs={12} sm={6} md={3} key={index}>
+                      <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
+                        <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', alignItems: 'center' }}>
+                          <StarIcon color="primary" />
+                          <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>{profile.rating.toFixed(1)}</Typography>
+                        </Box>
+                        <CardContent>
+                          <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>{profile.name}</Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{profile.location}</Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{profile.description}</Typography>
+                          <Typography variant="body2" color="text.secondary">Rate: ${profile.rate}/hr</Typography>
+                        </CardContent>
+                        <Box sx={{ p: 2 }}>
+                          <Button variant="outlined" color="primary" fullWidth>View Profile</Button>
+                        </Box>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
             </Box>
           </Box>
-        </Box>
+        </Container>
       </Box>
     </ThemeProvider>
   );
