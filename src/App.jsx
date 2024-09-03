@@ -3,11 +3,11 @@ import './App.css';
 import {
   Button, TextField, AppBar, Toolbar, IconButton, Typography, Grid,
   Card, CardContent, CardMedia, Box, Menu, MenuItem, Drawer, List, ListItem,
-  ListItemIcon, ListItemText, Rating, Container, useMediaQuery
+  ListItemIcon, ListItemText, Rating, Container, useMediaQuery, Select, FormControl, InputLabel
 } from '@mui/material';
 import {
   Menu as MenuIcon, AccountCircle, Home as HomeIcon, Work as WorkIcon,
-  Person as PersonIcon, Settings as SettingsIcon, Star as StarIcon
+  Person as PersonIcon, Settings as SettingsIcon, Star as StarIcon, Language as LanguageIcon
 } from '@mui/icons-material';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
 import tovaLogo from './assets/tova-logo.png';
@@ -89,6 +89,7 @@ function App() {
   const [where, setWhere] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [language, setLanguage] = useState('en');
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -105,12 +106,50 @@ function App() {
     // Implement logout logic here
     handleMenuClose();
   };
+  const handleLanguageChange = (event) => {
+    setLanguage(event.target.value);
+    handleMenuClose();
+  };
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
     setDrawerOpen(open);
+  };
+
+  const translate = (text) => {
+    const translations = {
+      en: {
+        'Tova AI': 'Tova AI',
+        'Work': 'Work',
+        'Personal': 'Personal',
+        'Search by name': 'Search by name',
+        'Search': 'Search',
+        'Who': 'Who',
+        'What': 'What',
+        'Where': 'Where',
+        'View Profile': 'View Profile',
+        'Profile': 'Profile',
+        'Logout': 'Logout',
+        'Language': 'Language',
+      },
+      zh: {
+        'Tova AI': 'Tova AI',
+        'Work': '工作',
+        'Personal': '个人',
+        'Search by name': '按名称搜索',
+        'Search': '搜索',
+        'Who': '谁',
+        'What': '什么',
+        'Where': '哪里',
+        'View Profile': '查看资料',
+        'Profile': '个人资料',
+        'Logout': '登出',
+        'Language': '语言',
+      },
+    };
+    return translations[language][text] || text;
   };
 
   return (
@@ -120,7 +159,7 @@ function App() {
           <Toolbar sx={{ backgroundColor: 'white', flexWrap: 'wrap' }}>
             <Box component="img" src={tovaLogo} alt="Tova AI" sx={{ height: 40, mr: 2 }} />
             <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold', color: 'primary.main' }}>
-              Tova AI
+              {translate('Tova AI')}
             </Typography>
             {!isMobile && (
               <Box component="img" src={lalivesLogo} alt="LA Lives" sx={{ height: 40, mr: 2 }} />
@@ -134,8 +173,23 @@ function App() {
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
               >
-                <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                <MenuItem onClick={handleMenuClose}>{translate('Profile')}</MenuItem>
+                <MenuItem onClick={handleLogout}>{translate('Logout')}</MenuItem>
+                <MenuItem>
+                  <FormControl fullWidth>
+                    <InputLabel id="language-select-label">{translate('Language')}</InputLabel>
+                    <Select
+                      labelId="language-select-label"
+                      id="language-select"
+                      value={language}
+                      label={translate('Language')}
+                      onChange={handleLanguageChange}
+                    >
+                      <MenuItem value="en">English</MenuItem>
+                      <MenuItem value="zh">中文</MenuItem>
+                    </Select>
+                  </FormControl>
+                </MenuItem>
               </Menu>
             </Box>
             <IconButton
@@ -164,7 +218,7 @@ function App() {
               {drawerItems.map((item) => (
                 <ListItem key={item.text}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
+                  <ListItemText primary={translate(item.text)} />
                 </ListItem>
               ))}
             </List>
@@ -181,7 +235,7 @@ function App() {
                   onClick={() => handleSectionChange(section)}
                   sx={{ mr: section === 'work' ? { xs: 0, sm: 2 } : 0, mb: { xs: 1, sm: 0 }, fontSize: '1.2rem', padding: '10px 30px', width: { xs: '100%', sm: 'auto' } }}
                 >
-                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                  {translate(section.charAt(0).toUpperCase() + section.slice(1))}
                 </Button>
               ))}
             </Box>
@@ -189,27 +243,27 @@ function App() {
               {activeSection === 'work' ? (
                 <>
                   <TextField
-                    label="Search by name"
+                    label={translate('Search by name')}
                     value={searchTerm}
                     onChange={handleSearchChange}
                     variant="outlined"
                     sx={{ mr: { xs: 0, sm: 2 }, mb: { xs: 2, sm: 0 }, width: { xs: '100%', sm: '300px' } }}
                   />
-                  <Button variant="contained" color="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>Search</Button>
+                  <Button variant="contained" color="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>{translate('Search')}</Button>
                 </>
               ) : (
                 <>
                   {['Who', 'What', 'Where'].map((field) => (
                     <TextField
                       key={field}
-                      label={field}
+                      label={translate(field)}
                       value={field === 'Who' ? who : field === 'What' ? what : where}
                       onChange={field === 'Who' ? handleWhoChange : field === 'What' ? handleWhatChange : handleWhereChange}
                       variant="outlined"
                       sx={{ mr: { xs: 0, sm: 2 }, mb: { xs: 2, sm: 0 }, width: { xs: '100%', sm: '200px' } }}
                     />
                   ))}
-                  <Button variant="contained" color="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>Search</Button>
+                  <Button variant="contained" color="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>{translate('Search')}</Button>
                 </>
               )}
             </Box>
@@ -221,7 +275,7 @@ function App() {
                       <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                         <CardMedia component="img" alt={category.name} image={category.icon} sx={{ width: 40, height: 40, mb: 1 }} />
                         <CardContent sx={{ p: 0 }}>
-                          <Typography variant="caption" color="text.secondary" component="p" align="center">{category.name}</Typography>
+                          <Typography variant="caption" color="text.secondary" component="p" align="center">{translate(category.name)}</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -238,11 +292,11 @@ function App() {
                         <CardContent>
                           <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>{profile.name}</Typography>
                           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{profile.location}</Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{profile.description}</Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{translate(profile.description)}</Typography>
                           <Typography variant="body2" color="text.secondary">Rate: ${profile.rate}/hr</Typography>
                         </CardContent>
                         <Box sx={{ p: 2 }}>
-                          <Button variant="outlined" color="primary" fullWidth>View Profile</Button>
+                          <Button variant="outlined" color="primary" fullWidth>{translate('View Profile')}</Button>
                         </Box>
                       </Card>
                     </Grid>
